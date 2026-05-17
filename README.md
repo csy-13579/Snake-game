@@ -8,6 +8,8 @@
 - 粒子特效  
 - 游玩统计  
 
-# 运行
+## 怎么玩
 
-执行Snake_game.exe即可
+1. 下载 `Snake_game.zip`
+2. 在下载好后的 `Snake_game.zip` 右键 → 解压到当前文件夹
+3. 双击 `Snake.exe` 运行
