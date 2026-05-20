@@ -209,11 +209,8 @@ function love.update(dt)
                             local food_pos = add_raspberry()
                             if math.random() < double_food_probability then
                                 local food_pos2 = add_raspberry()
-                                load_game.addFrame(newHead.x, newHead.y, true, true, food_pos[1], food_pos[2], food_pos2[1], food_pos2[2])
                                 double_food_probability = 0.0
                                 active_double = true
-                            else
-                                load_game.addFrame(newHead.x, newHead.y, true, false, food_pos[1], food_pos[2])
                             end
                         end
                         get_food:play()
@@ -231,13 +228,10 @@ function love.update(dt)
 
                 if not willGrow then
                     table.remove(snake)
-                    if begin then
-                        load_game.addFrame(newHead.x, newHead.y, nil, false, foods[1].x, foods[1].y)
-                        begin = false
-                    else
-                        load_game.addFrame(newHead.x, newHead.y, false, false, 0, 0)
-                    end
                 end
+
+                print("save snake length", #snake)
+                addFrame()
 
                 saveRecording('gameplay')
 
@@ -271,21 +265,21 @@ function love.update(dt)
             end
         end
     end
-    if isReplaying then
-        speed = 30
-        replayTimer = replayTimer + dt
-        if replayTimer >= speed / 60 then
-            replayTimer = 0
-            local frame = playback[replayIndex]
-            -- print('x', playback[replayIndex].x)
-            if frame then
-                applyFrame(frame)
-                replayIndex = replayIndex + 1
-            else
-                isReplaying = false
-            end
-        end
-    end
+    -- if isReplaying then
+    --     speed = 30
+    --     replayTimer = replayTimer + dt
+    --     if replayTimer >= speed / 60 then
+    --         replayTimer = 0
+    --         local frame = playback[replayIndex]
+    --         -- print('x', playback[replayIndex].x)
+    --         if frame then
+    --             applyFrame(frame)
+    --             replayIndex = replayIndex + 1
+    --         else
+    --             isReplaying = false
+    --         end
+    --     end
+    -- end
     particle:update(dt)
 end
 
@@ -341,6 +335,19 @@ function love.keypressed(key)
 
             }
             isReplaying = true
+            replayIndex = 0
+            playback = loadRecording('gameplay')
+
+        elseif key == 'a' then
+            if isReplaying and replayIndex > 1 then
+                replayIndex = replayIndex - 1
+                applyFrame(playback[replayIndex])
+            end
+        elseif key == 'd' then
+            if isReplaying and replayIndex < #playback - 1 then
+                replayIndex = replayIndex + 1
+                applyFrame(playback[replayIndex])
+            end
         end
     end
 end
@@ -536,32 +543,16 @@ function CenterFontPrint(font, text, x, y, rad)
 end
 
 function applyFrame(frame)
-    -- print(frame.ate)
-    table.insert(snake, 1, {x = frame.x, y = frame.y})
-    
-    if frame.ate == nil then
-        table.insert(foods, {x = frame.newFoodX, y = frame.newFoodY})
-        print(frame.newFoodX)
+    snake = copyTable(frame.snake)
+    foods = copyTable(frame.foods)
+    print("切换到帧", replayIndex, "蛇头坐标", frame.snake[1].x, frame.snake[1].y)
+    print("snake length", #snake)
+end
+
+function copyTable(t)
+    local new = {}
+    for i, v in ipairs(t) do
+        new[i] = {x = v.x, y = v.y}
     end
-        
-    if frame.ate then
-        -- 2. 删除被吃的食物（坐标 = 新蛇头）
-        for i, food in ipairs(foods) do
-            if food.x == frame.x and food.y == frame.y then
-                table.remove(foods, i)
-                break
-            end
-        end
-        
-        -- 3. 添加新食物
-        if frame.doubleFood then
-            table.insert(foods, {x = frame.newFoodX, y = frame.newFoodY})
-            table.insert(foods, {x = frame.newFoodX2, y = frame.newFoodY2})
-        else
-            table.insert(foods, {x = frame.newFoodX, y = frame.newFoodY})
-        end
-    else
-        -- 没吃到食物，移除蛇尾
-        table.remove(snake)
-    end
+    return new
 end
