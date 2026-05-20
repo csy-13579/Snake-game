@@ -1,0 +1,17 @@
+# 录像和存档文件
+gameplay.txt
+lastgame.txt
+highscore.txt
+userdata.txt
+
+# 打包生成的文件
+*.exe
+*.dll
+Release/
+
+# LÖVE 生成的临时文件
+*.love
+
+# 系统文件
+.DS_Store
+Thumbs.db
